@@ -16,14 +16,16 @@ import firestore from '@react-native-firebase/firestore';
 //newcode
 // import { firebase } from './config'
 import {collection, setDoc, doc, getDocs, addDoc} from 'firebase/firestore';
+var reslistData = [];
 
 const HomeScreen = ({navigation}) => {
   const [fetchsch, setfetchsch] = useState('');
   const [name, setname] = useState('');
-  const [scholarships, setScholarships] = useState();
+  const [reslist, setReslist] = useState([]);
 
   useEffect(() => {
     getdata();
+    console.log('reslist in useEffect', reslist.length);
     // firestore()
     //   .collection('Users')
     //   .add({
@@ -34,26 +36,16 @@ const HomeScreen = ({navigation}) => {
     //     console.log('User added!');
     //   });
   }, []);
-  var scholarShipsArray = [];
   const getdata = async () => {
     firestore()
       .collection('scholarships')
       .get()
       .then(querySnapshot => {
         console.log('Total users: ', querySnapshot.size);
-        //  setScholarships(querySnapshot);
-        querySnapshot.forEach(documentSnapshot => {
-          // console.log(
-          //   'User ID: ',
-          //   documentSnapshot.id,
-          //   documentSnapshot.data(),
-          // );
-          scholarShipsArray.push(documentSnapshot.data());
-          setScholarships([...scholarships, scholarShipsArray]);
-
-          console.log('scholarShipsArray', scholarships);
-        });
+        const buddies = querySnapshot.docs.map(doc => doc.data().scholarship);
+        setReslist(buddies);
       });
+    console.log('reslist', reslist.length);
   };
 
   //newreadcode
@@ -179,7 +171,26 @@ const HomeScreen = ({navigation}) => {
       </LinearGradient>
       {/* <Text> Recommended Experts</Text> */}
       {/* <MyFlatlist mode={'horizontal'} /> */}
-      <Text> Recommended Jobs</Text>
+      <Text style={styles.title}> Recommended Jobs</Text>
+
+      {/* {scholarships?.forEach((item, index) => {
+        console.log('item========>', item?.scholarship);
+        return (
+          <View id={index} style={{backgroundColor: 'red', width: 100}}>
+            <Text>{item?.scholarship}</Text>
+          </View>
+        );
+      })} */}
+      <ScrollView>
+        {reslist.map((item, index) => {
+          console.log('item', item);
+          return (
+            <View id={index} style={styles.scholarshipView}>
+              <Text>{item}</Text>
+            </View>
+          );
+        })}
+      </ScrollView>
 
       {/* {scholarships?.forEach((item, index) => {
         console.log('item========>', item?.scholarship);
@@ -190,10 +201,10 @@ const HomeScreen = ({navigation}) => {
         );
       })} */}
 
-      {scholarships.map(item => {
+      {/* {scholarships?.map(item => {
         console.log('item', item);
         return <Text>{item?.scholarship}</Text>;
-      })}
+      })} */}
 
       {/* <MyFlatlist mode= {'vertical'}/> */}
       {/* //newcode */}
@@ -229,5 +240,17 @@ const styles = StyleSheet.create({
   },
   itemtext: {
     fontWeight: 300,
+  },
+  scholarshipView: {
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'grey',
+    margin: 10,
+    borderRadius: 10,
+  },
+  title: {
+    alignSelf: 'center',
+    marginVertical: 20,
+    fontSize: 20,
   },
 });
